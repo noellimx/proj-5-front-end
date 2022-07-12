@@ -4,18 +4,21 @@ import ShowAll from "./components/showall.jsx";
 import ShowOne from "./components/showone.jsx";
 import ShowAllViews from "./components/showallviews.jsx";
 import { Login } from "./components/login.jsx";
-import axios from "axios";
+import ErrorMsg from "./components/error.jsx";
+
+
+
 import ShowOneView from "./components/showoneview.jsx";
 
 //One ether = 1,000,000,000,000,000,000 wei
 
 export default function App() {
+  // loader
+  const [isLoading, setIsLoading] = useState(false);
+
   // user authentication purposes
   const [username, setUsername] = useState(null);
   const [token, setToken] = useState(null);
-
-  // submit a transaction
-  const [submit, setSubmit] = useState(false);
 
   // show one transaction
   const [transactionDetails, setTransactionDetails] = useState({
@@ -23,44 +26,59 @@ export default function App() {
     stats: {},
   });
 
-  // show all transactions
-  const [showAll, setShowAll] = useState(false);
+  // set all transactions
+  const [allTransactionDetails, setAllTransactionDetails] = useState([]);
+  
+  // set parameters
+  const [parameters ,setParameters] = useState(null)
 
-  // show all views
-  const [showAllViews, setShowAllViews] = useState(false);
+  // filter params
+  const [filter, setFilter] = useState(null);
+
 
   // set what component to render
   const [display, setDisplay] = useState(null);
 
+  // set view
   const [viewId, setViewId] = useState(null);
+  const [viewname, setViewname] = useState(null)
+
+  //toggle showall
+  const [toggleShowAll, setToggleShowAll] = useState(false)
+  const [getall, setGetall] = useState(false)
 
   const submitRecord = () => {
+    setIsLoading(false)
     setDisplay("form");
-    setSubmit(true);
-    setShowAll(false);
   };
-  const showRecords = () => {
+  const showRecords = () => {    
     setDisplay("showall");
-    setShowAll(true);
-    setShowAllViews(false);
-    setSubmit(false);
+    setToggleShowAll(!toggleShowAll)
+    setGetall(false)
+    setIsLoading(true)
+    setFilter(null)
+    setParameters(null)
+    console.log(isLoading, display, parameters)
+    
+    
+    
   };
 
   const showViews = () => {
     setDisplay("showallviews");
-    console.log(display, showAllViews, showAll);
-    setShowAllViews(true);
-    setShowAll(false);
-    setSubmit(false);
+    console.log(display);
   };
   const logout = () => {
     setToken(null);
     setUsername(null);
   };
   return (
-    <div>
+    <div id="body">
+      
       {!token && <Login setToken={setToken} setUsername={setUsername} />}
+      
       {token && (
+        
         <>
           <div id="button-container">
             <div id="buttonleft">
@@ -73,58 +91,85 @@ export default function App() {
               <button onClick={() => logout()}>Logout</button>
             </div>
           </div>
+          {display === "errormsg" &&
+            <ErrorMsg/>
+          }
 
-          {display === "form" && (
+          {display === "form" && 
             <Submit
               token={token}
-              setSubmit={setSubmit}
               setDisplay={setDisplay}
               display={display}
               setTransactionDetails={setTransactionDetails}
               transactionDetails={transactionDetails}
+              isLoading={isLoading}
+              setIsLoading={setIsLoading}
             />
-          )}
+          }
 
-          {showAll && (
+          {display==="showall" &&
             <ShowAll
               token={token}
               setDisplay={setDisplay}
-              display={display}
+              toggleShowAll={toggleShowAll}
               setTransactionDetails={setTransactionDetails}
-            />
-          )}
+              setIsLoading={setIsLoading}
+              isLoading={isLoading}
+              parameters={parameters}
+              setParameters={setParameters}
+              setAllTransactionDetails={setAllTransactionDetails}
+              allTransactionDetails={allTransactionDetails}
+              filter={filter}
+              setFilter={setFilter}
+              getall={getall}
+              setGetall={setGetall}
+            /> 
+          }
 
-          {display === "showone" && (
+          {display === "showone" &&
             <ShowOne
               transactionDetails={transactionDetails}
               token={token}
               setDisplay={setDisplay}
-              displa={display}
+              display={display}
+              isLoading={isLoading}
+              setIsLoading={setIsLoading}
+              
             />
-          )}
+          }
 
-          {showAllViews && (
+          {display === "showallviews" && (
             <ShowAllViews
               token={token}
               setDisplay={setDisplay}
               display={display}
-              setTransactionDetails={setTransactionDetails}
+              setAllTransactionDetails={setAllTransactionDetails}
               setViewId={setViewId}
+              setIsLoading={setIsLoading}
+              isLoading={isLoading}
+              setViewname={setViewname}
+              
             />
           )}
+
           {display === "showoneview" && (
             <ShowOneView
-              viewId={viewId}
-              transactionDetails={transactionDetails}
-              setTransactionDetails={setTransactionDetails}
+              viewId={viewId}  
               token={token}
+              allTransactionDetails={allTransactionDetails}
+              setTransactionDetails={setTransactionDetails}
               setDisplay={setDisplay}
               display={display}
-              setShowAllViews={setShowAllViews}
+              setIsLoading={setIsLoading}
+              isLoading={isLoading}
+              viewname={viewname}
+              setViewname={setViewname}
             />
           )}
         </>
       )}
+    
     </div>
-  );
+          
+  )
 }

@@ -1,95 +1,111 @@
 import React, { useEffect, useState } from "react";
 import { IndivGraph } from "./graph.jsx";
-import ShowOne from "./showone.jsx";
+import LoadingSpinner from "./spinner.jsx";
 import { instance } from "../connection/my-axios.mjs";
+import DatePicker from "react-date-picker";
+
+import "react-datepicker/dist/react-datepicker.css";
+
 
 export default function Submit({
-  setSubmit,
   token,
   display,
   setDisplay,
   setTransactionDetails,
   transactionDetails,
+  isLoading,
+  setIsLoading
 }) {
   const [transactionHash, setTransactionHash] = useState();
   const [transactionType, setTransactionType] = useState();
-
-  // const [transactionDetails, setTransactionDetails] = useState({
-  //   transactions: [],
-  //   stats: {},
-  // });
+  const [cost, setCost] = useState(null)
+  const [boughtDate, setBoughtDate] = useState(new Date())
 
   const handleInputChange = (event) => {
     if (event.target.name == "transactionHash") {
       setTransactionHash(event.target.value);
     }
-
     if (event.target.name == "transactionType") {
       setTransactionType(event.target.value);
+      if(event.target.value === "SELL") {
+        setCost(true)
+      } else {
+        setCost(null)
+      }
     }
 
-    console.log(transactionHash, transactionType);
+    if(event.target.name === "cost") {
+      setCost(event.target.value)
+    }
+    console.log(transactionHash, transactionType, cost);
   };
 
   function record(e) {
     e.preventDefault();
+    setIsLoading(true)
 
     const data = {
       token,
       transactionType: transactionType,
       transactionHash: transactionHash,
+      boughtDate
     };
+    console.log(boughtDate)
 
     instance.post("/track-transaction", data).then((response) => {
-      console.log(response.data);
-
-      const { transactions, stats } = response.data;
-      const transactionData = { transactions, stats };
-
-      setTransactionDetails(transactionData);
-      setDisplay("showone");
-      console.log(transactionDetails);
-    });
+      
+        console.log(response.data);  
+        const { transactions, stats } = response.data;
+        const transactionData = { transactions, stats };
+        setTransactionDetails(transactionData);
+        
+        setDisplay("showone");
+        console.log(transactionDetails);
+        setIsLoading(false)  
+    }).catch((error)=>{
+      console.log(error)
+        setDisplay("errormsg")
+    })
   }
 
   return (
     <div id="container">
-      {display === "form" && (
+      {isLoading? <LoadingSpinner/> :(
         <div id="form-container">
           <form onSubmit={(e) => record(e)}>
-            <label>Transaction Hash</label>
+            <label>Transaction Hash</label><br/>
             <input
               type="text"
               name="transactionHash"
               onChange={(event) => handleInputChange(event)}
+              required
             />{" "}
             <br />
-            <label>Transaction Type</label>
+            <label>Transaction Type</label> <br/>
             <select
               name="transactionType"
               defaultValue=""
               onChange={(event) => handleInputChange(event)}
+              required
             >
               <option value="" hidden>
                 ---Choose One---
               </option>
-              <option value="SELL">sell</option>
-              <option value="BUY">buy</option>
-              <option value="TRANSFER-IN">transfer in</option>
-              <option value="TRANSFER-OUT">transfer out</option>
+              <option value="SELL">Sell</option>
+              <option value="BUY">Buy</option>
             </select>{" "}
             <br />
-            <input type="submit" value="submit" />
+            {cost &&
+            <div>
+            <label>Date Bought</label> <br/>
+            <DatePicker maxDate={new Date ()} value={boughtDate} onChange={setBoughtDate} />
+            <br/>
+            </div>
+            }
+            <input type="submit" value="submit" className="button" />
           </form>
         </div>
       )}
-      {/* {display === "showone" &&
-        <ShowOne
-          transactionDetails={transactionDetails}
-          token={token}
-          setDisplay = {setDisplay}
-        />
-        } */}
     </div>
   );
 }

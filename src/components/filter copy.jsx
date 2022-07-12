@@ -6,17 +6,12 @@ export default function FilterView({
   filter,
   setIsFiltered,
   token,
-  setParameters,
-  setIsLoading,
-  setStartDate,
-  setEndDate,
-  startDate,
-  endDate,
-  setNetwork,
-  network
+  allTransactionDetails,
+  setNoResults
 }) {
-  
-  
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
+  const [network, setNetwork] = useState("");
   const [showSaveView, setShowSaveView] = useState(false);
   const [viewSaved, setViewSaved] = useState(false);
   const [viewname, setViewname] = useState("default viewname")
@@ -38,41 +33,36 @@ export default function FilterView({
   };
 
   function submitFilter() {
-    setIsLoading(true)
-    setIsFiltered(true)
     const parameters = [];
     if (filter === "Date") {
       console.log(startDate, endDate, "date filter");
-      setParameters([startDate, endDate]);
-      console.log(parameters)
+      parameters.push(startDate, endDate);
     } else if (filter === "Network") {
-      setParameters([network])
+      parameters.push(network);
       console.log(network, "network filter");
-      console.log(parameters)
     }
-    // instance
-    //   .get("/all-transactions", {
-    //     params: { token, filterBy: { column: filter, parameters } },
-    //   })
-    //   .then((response) => {
+    instance
+      .get("/all-transactions", {
+        params: { token, filterBy: { column: filter, parameters } },
+      })
+      .then((response) => {
         
-    //     console.log("response", response);
-    //     if(response.data.transactions.length === 0){
-    //       console.log('no results')
-    //       setNoResults(true)
-    //       setTransactionIds("")
+        console.log("response", response);
+        if(response.data.transactions.length === 0){
+          console.log('no results')
+          setNoResults(true)
+          setTransactionIds("")
           
-    //     } else {
-    //       setNoResults(false)
-    //       setIsFiltered(true);
-    //       setAllTransactionDetails(response.data.transactions);
-    //       setTransactionIds(
-    //         response.data.transactions.map((transaction) => transaction.id)
-    //       );
-    //       console.log(transactionIds, "saved txn details");
-    //       setShowSaveView(true);
-    //     }
-    //   });
+        } else {
+          setNoResults(false)
+          setIsFiltered(true);
+          setTransactionIds(
+            response.data.transactions.map((transaction) => transaction.id)
+          );
+          console.log(transactionIds, "saved txn details");
+          setShowSaveView(true);
+        }
+      });
     
   }
 
@@ -90,21 +80,23 @@ export default function FilterView({
     });
   }
 
+  useEffect(() => {
+    setViewSaved(false);
+  }, [filter, startDate, endDate, network]);
+
   return (
     <div id="filter2-container">
       {filter === "Date" && (
         <div id="datefilter">
-          
-          <DatePicker onChange={setStartDate} value={startDate} />{"  "}
-          to before{"  "}
+          from:
+          <DatePicker onChange={setStartDate} value={startDate} />
+          to:
           <DatePicker
             minDate={startDate}
             onChange={setEndDate}
             value={endDate}
           />
-          
-          {"  "}
-          <button onClick={submitFilter}>Go</button>
+          <button onClick={submitFilter}>Submit</button>
         </div>
       )}
       {filter === "Network" && (
@@ -112,7 +104,7 @@ export default function FilterView({
           <select
             name="filter"
             onChange={(event)=>handleChange(event)}
-            defaultValue={network.length !== 0 ? network:""}
+            defaultValue={""}
             required
           >
             <option value="" disabled>
@@ -124,13 +116,18 @@ export default function FilterView({
             <option name="BTC" value="BTC">
               BTC
             </option>
-          </select> <button onClick={submitFilter}>Go</button><br/>
-          
+          </select> <br/>
+          <input
+            type="text"
+            name="viewname"
+            placeholder = "viewname"
+            onChange={(event)=>handleChange(event)} />
+          <button onClick={submitFilter}>Submit</button>
         </div>
       )}
       
-      {/* {showSaveView === true && <button onClick={saveView}>Save View</button>}
-      {viewSaved === "View Saved!" && <span>{viewSaved}</span>} */}
+      {showSaveView === true && <button onClick={saveView}>Save View</button>}
+      {viewSaved === "View Saved!" && <span>{viewSaved}</span>}
     </div>
   );
 }

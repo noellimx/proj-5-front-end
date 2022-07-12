@@ -1,16 +1,97 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
-  background-color: pink;
+  // background-color: pink;
   padding: 10px 20px;
   text-align: center;
+  background-color: #ffffff;
+  background-image: url("https://www.transparenttextures.com/patterns/bright-squares.png");
+  font-family: "Viga", sans-serif;
+  // font-size: 2px;
+  min-height: 100vh;
+  // max-width: 85vw;
+  
+}
+
+svg text {
+  font-family: "Black Ops One";
+  // margin-top: 10px;
+  font-size: 80px;
+  stroke-width: 2px;
+  stroke: lightseagreen;
+  color: black;
+  animation: textAnimate 5s infinite alternate;
+}
+
+@keyframes textAnimate {
+  0% {
+    stroke-dasharray: 0 50%;
+    stroke-dashoffset: 20%;
+    fill: lightseagreen;
+  }
+
+  100% {
+    stroke-dasharray: 50% 0;
+    stroke-dashoffstet: -20%;
+    fill: hsla(189, 68%, 75%, 0%);
+  }
+}
+
+.details-header {
+  font-size: 20px;
+}
+
+.details {
+  color: teal;
+  font-size: 16px;
+}
+
+.details-highlight {
+  color: darkslategrey;
+  font-size: 18px;
+}
+.BUY, .view-transaction {
+  color: teal;
+  font-size: 16px;
+}
+.SELL {
+  color: darkslategrey;
+  font-size: 16px;
+}
+
+#login-container,
+#container {
+  margin: 5% auto;
+}
+
+#filter select,
+// #filter input,
+#form-container input,
+#form-container select {
+  margin: 10px;
+}
+
+#login-buttons input,
+#create-buttons input {
+  margin: 20px;
 }
 
 #summary-container,
 #filter-container,
 #transaction-container,
-#form-container,
-#details {
+#form-container
+{
   margin: 15px 0px;
 }
+
+#details{
+  margin-top: 15px;
+}
+
 
 #content-container,
 #button-container {
@@ -19,12 +100,66 @@ body {
   padding: 10px;
 }
 
-#button-container button {
+
+#edit-container{
+  display:flex;
+  justify-content: space-around;
+}
+
+.transaction input,
+// #filter button, 
+#edit-container input {
+  margin-right: 10px;
+}
+
+#button-container button 
+{
   margin: 0px 5px;
 }
 
 #details-container,
 #graph {
-  width: 50%;
+  width: 38%;
   margin: auto;
+  padding-bottom:10px
+}
+
+#details-container {
+  margin-top: 15px;
+}
+
+.button,
+button {
+  font-family: "Black Ops One";
+  display: inline-block;
+  padding: 5px 10px;
+  border: 0.1em solid lightseagreen;
+  border-radius: 0.12em;
+  box-sizing: border-box;
+  color: lightseagreen;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.button:hover,
+button:hover {
+  color: white;
+  background-color: teal;
+}
+@media all and (max-width: 30em) {
+  
+  .button,
+  button {
+    display: block;
+    margin: 0.4em auto;
+  }
+}
+
+.portfolio-details{
+  font-size: 26px
+}
+
+.portfolio-container{
+  display: flex;
+  justify-content: space-evenly;
 }
